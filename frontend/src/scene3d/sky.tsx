@@ -11,25 +11,23 @@ import * as THREE from 'three'
 export function Sky({ night = false }: { night?: boolean }) {
   // Optimized star geometry - tightly spread on upper hemisphere only
   const starsGeometry = useMemo(() => {
-    const count = 800
+    const count = 1200
     const geo = new THREE.BufferGeometry()
     const positions = new Float32Array(count * 3)
     const sizes = new Float32Array(count)
 
     for (let i = 0; i < count; i++) {
-      // Golden ratio sphere distribution, upper hemisphere only (y > 0)
+      // Golden ratio sphere distribution across the visible upper hemisphere.
       const theta = (i * 2.399963) % (Math.PI * 2) // golden angle
-      const phi = Math.acos(1 - (i / count)) // upper hemisphere: phi 0..PI, y = cos(phi) from 1 to -1
-      // Only upper hemisphere: keep phi 0..PI/2 + some below horizon (phi 0..1.7 out of PI)
-      const phiClamped = (phi / Math.PI) * 1.5 // compress so all stars are near-upper half
-      const radius = 180 + (i % 7) * 3  // vary slightly
+      const phi = Math.acos(1 - (i / count) * 0.92)
+      const radius = 210 + (i % 7) * 3
 
-      positions[i * 3]     = radius * Math.sin(phiClamped) * Math.cos(theta)
-      positions[i * 3 + 1] = radius * Math.abs(Math.cos(phiClamped)) + 20 // force above ground
-      positions[i * 3 + 2] = radius * Math.sin(phiClamped) * Math.sin(theta)
+      positions[i * 3]     = radius * Math.sin(phi) * Math.cos(theta)
+      positions[i * 3 + 1] = radius * Math.cos(phi) + 24
+      positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta)
       
       // Vary star sizes for twinkling illusion
-      sizes[i] = 0.6 + (i % 5) * 0.25
+      sizes[i] = 1.0 + (i % 5) * 0.38
     }
 
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
@@ -61,17 +59,18 @@ export function Sky({ night = false }: { night?: boolean }) {
     <group>
       {/* === SKY DOME === */}
       {/* Outer dome - primary sky color */}
-      <mesh scale={260}>
+      <mesh scale={260} renderOrder={-20}>
         <sphereGeometry args={[1, 32, 16]} />
         <meshBasicMaterial
           side={THREE.BackSide}
           color={night ? '#05091a' : '#4da8e0'}
           fog={false}
+          depthWrite={false}
         />
       </mesh>
 
       {/* Inner dome - lower horizon gradient layer */}
-      <mesh scale={240}>
+      <mesh scale={240} renderOrder={-19}>
         <sphereGeometry args={[1, 24, 8]} />
         <meshBasicMaterial
           side={THREE.BackSide}
@@ -79,11 +78,12 @@ export function Sky({ night = false }: { night?: boolean }) {
           transparent
           opacity={0.65}
           fog={false}
+          depthWrite={false}
         />
       </mesh>
 
       {/* Horizon glow strip */}
-      <mesh position={[0, -40, 0]} scale={[230, 60, 230]}>
+      <mesh position={[0, -40, 0]} scale={[230, 60, 230]} renderOrder={-18}>
         <sphereGeometry args={[1, 24, 6]} />
         <meshBasicMaterial
           side={THREE.BackSide}
@@ -91,6 +91,7 @@ export function Sky({ night = false }: { night?: boolean }) {
           transparent
           opacity={0.5}
           fog={false}
+          depthWrite={false}
         />
       </mesh>
 
@@ -98,52 +99,54 @@ export function Sky({ night = false }: { night?: boolean }) {
       {night ? (
         <>
           {/* Stars - bright field */}
-          <points geometry={starsGeometry}>
+          <points geometry={starsGeometry} renderOrder={-10}>
             <pointsMaterial
               color="#ffffff"
-              size={1.1}
+              size={1.8}
               sizeAttenuation={true}
               transparent
               opacity={0.92}
               fog={false}
+              depthWrite={false}
             />
           </points>
 
           {/* Stars - secondary faint layer (rotated) */}
-          <points geometry={starsGeometry} rotation={[0.3, 0.8, 0.1]}>
+          <points geometry={starsGeometry} rotation={[0.3, 0.8, 0.1]} renderOrder={-9}>
             <pointsMaterial
               color="#aac4ff"
-              size={0.55}
+              size={0.9}
               sizeAttenuation={true}
               transparent
               opacity={0.55}
               fog={false}
+              depthWrite={false}
             />
           </points>
 
           {/* === MOON === */}
           {/* Core moon disc */}
-          <mesh position={[75, 110, -155]}>
+          <mesh position={[24, 112, -128]} renderOrder={-8}>
             <sphereGeometry args={[10, 32, 32]} />
-            <meshBasicMaterial color="#fffacd" fog={false} />
+            <meshBasicMaterial color="#fffacd" fog={false} depthWrite={false} />
           </mesh>
 
           {/* Moon inner glow */}
-          <mesh ref={moonRef} position={[75, 110, -155]}>
+          <mesh ref={moonRef} position={[24, 112, -128]} renderOrder={-7}>
             <sphereGeometry args={[14, 32, 32]} />
-            <meshBasicMaterial color="#fffde8" transparent opacity={0.18} fog={false} />
+            <meshBasicMaterial color="#fffde8" transparent opacity={0.18} fog={false} depthWrite={false} />
           </mesh>
 
           {/* Moon outer halo */}
-          <mesh position={[75, 110, -155]}>
+          <mesh position={[24, 112, -128]} renderOrder={-6}>
             <sphereGeometry args={[22, 32, 32]} />
-            <meshBasicMaterial color="#ffe8a0" transparent opacity={0.06} fog={false} />
+            <meshBasicMaterial color="#ffe8a0" transparent opacity={0.06} fog={false} depthWrite={false} />
           </mesh>
 
           {/* Moon far halo - atmospheric */}
-          <mesh position={[75, 110, -155]}>
+          <mesh position={[24, 112, -128]} renderOrder={-5}>
             <sphereGeometry args={[32, 32, 32]} />
-            <meshBasicMaterial color="#fff5c0" transparent opacity={0.025} fog={false} />
+            <meshBasicMaterial color="#fff5c0" transparent opacity={0.025} fog={false} depthWrite={false} />
           </mesh>
 
           {/* Milky way tint - subtle band across sky */}
