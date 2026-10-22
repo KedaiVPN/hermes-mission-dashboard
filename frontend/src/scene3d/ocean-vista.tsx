@@ -38,8 +38,8 @@ export function OceanVista({ night = false, offsetX = 45, offsetZ = -15 }: Ocean
     <group position={[offsetX, 0, offsetZ]}>
       {/* Shoreline Transition / Beach shelf */}
       <RBox
-        position={[-12, -0.1, 0]}
-        size={[6, 0.4, 110]}
+        position={[0, -0.1, 20]}
+        size={[180, 0.4, 10]}
         radius={0.2}
         color={shoreColor}
         roughness={0.9}
@@ -49,11 +49,11 @@ export function OceanVista({ night = false, offsetX = 45, offsetZ = -15 }: Ocean
       {/* Main Visible Ocean Surface */}
       <mesh
         ref={meshRef}
-        position={[40, -0.15, 0]}
+        position={[0, -0.15, 65]}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[100, 120, 16, 16]} />
+        <planeGeometry args={[180, 80, 24, 16]} />
         <meshStandardMaterial
           color={waterColor}
           roughness={0.15}
@@ -65,8 +65,8 @@ export function OceanVista({ night = false, offsetX = 45, offsetZ = -15 }: Ocean
 
       {/* Deep horizon water shelf */}
       <RBox
-        position={[90, -0.25, 0]}
-        size={[30, 0.2, 130]}
+        position={[0, -0.25, 108]}
+        size={[180, 16, 12]}
         radius={0.0}
         color={deepColor}
         roughness={0.3}

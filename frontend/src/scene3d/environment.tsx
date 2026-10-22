@@ -332,13 +332,14 @@ function Outdoors({ night, layout, agents }: { night: boolean; layout: OfficeLay
       intensity={night ? 0.9 : 1.15}
       castShadow
     />
-    <fog attach="fog" args={[night ? '#10182d' : '#b8d7ee', 100, 300]} />
+    {/* One distant atmospheric fog only. A second near fog made the entire vista disappear on mobile. */}
+    <fog attach="fog" args={[night ? '#10182d' : '#b8d7ee', 150, 460]} />
     {/* Infinite ground plane - 10x larger to avoid visible edges */}
     <Floor position={[shift / 2, -0.02, -50]} size={[600, 500]} map={lawn} roughness={1}/>
     {/* Semi-open-world Vista: Layered Mountains & Ocean Horizon */}
     <LayeredMountains buildingMinX={layout.building.minX} />
     {/* Ocean in FRONT of office (z positive = towards street) */}
-    <OceanVista night={night} offsetX={0} offsetZ={80} />
+    <OceanVista night={night} offsetX={0} offsetZ={0} />
     {/* Horizon-traversing NPCs (distant vehicles, walkers, animals) */}
     <WorldNPCs buildingMinX={layout.building.minX} />
     {/* Extended sidewalk and road towards horizon */}

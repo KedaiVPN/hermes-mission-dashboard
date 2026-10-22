@@ -443,7 +443,6 @@ function Lighting({ theme, shadowsEnabled }: { theme: 'dark' | 'light'; shadowsE
   const day = theme === 'light'
   return <>
     <color attach="background" args={[day ? '#bfe0ef' : '#1a2335']}/>
-    <fog attach="fog" args={[day ? '#bfe0ef' : '#1a2335', 38, 75]}/>
     <hemisphereLight args={[day ? '#fff4e0' : '#7f95bd', day ? '#5d7a4c' : '#1e2620', day ? 1.1 : 0.32]}/>
     <directionalLight
       position={[10, 16, 9]}
