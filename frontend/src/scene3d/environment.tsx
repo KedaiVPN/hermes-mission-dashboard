@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 import { ARCADES, BALCONY, BALCONY_DOOR, BALCONY_TABLE, BATHROOM, BEANBAGS, CARROM, COFFEE_TABLE, ENTRANCE_X, FLAG, FLOOR_HEIGHT, type Floor as FloorNumber, GAME_DOOR, GAME_ROOM, GAME_TV, HAMMOCK, LESEHAN_TABLE, LOUNGE_PARTITION_END_Z, MEETING_DOOR_X, PARTITION_X, PING_PONG, SOFA, STAIRS, STALL_ROTATION, type OfficeLayout, TV, type Vec3 } from '../office3d-layout.ts'
-import { AcOutdoorUnit, AirConditioner, ArcadeCabinet, Armchair, BathroomFittings, Beanbag, Bed, Bookshelf, CarromTable, ClothesLine, CoffeeTable, FlagPole, FloorCushion, Fridge, GalonDispenser, Gerobak, Hammock, KopiSepeda, LongTable, LowTable, Nightstand, OfficeChair, OfficeLight, PantryCounter, PingPongTable, Plant, Railing, RattanChair, RBox, SideTable, Sofa, Staircase, StreetLamp, StringLights, Television, Tree, WallClock, Wardrobe, WaterTank, Whiteboard } from './props.tsx'
+import { AcOutdoorUnit, AirConditioner, ArcadeCabinet, Armchair, BathroomFittings, Beanbag, Bed, Bookshelf, CarromTable, ClothesLine, CoffeeTable, FlagPole, FloorCushion, Fridge, GalonDispenser, Gerobak, Hammock, KopiSepeda, LongTable, LowTable, Nightstand, OfficeChair, OfficeLight, PantryCounter, PingPongTable, Plant, Railing, RattanChair, RBox, SideTable, Sofa, Staircase, StringLights, Television, Tree, WallClock, Wardrobe, WaterTank, Whiteboard } from './props.tsx'
 import { AnimatedVendor, StreetNPC } from './npc.tsx'
-import { LayeredMountains } from './layered-mountains.tsx'
-import { OceanVista } from './ocean-vista.tsx'
+import { Mountains } from './mountains.tsx'
+import { CityBlocks } from './city-blocks.tsx'
 import { WorldNPCs } from './world-npc.tsx'
 import { Sky } from './sky.tsx'
 import { asphalt, carpet, grass, pavingStones, tileFloor, woodFloor } from './textures.ts'
@@ -17,8 +17,8 @@ const WALL_TOP = '#d9cdb8'
 const WALL_HEIGHT = 2.6
 const THICK = 0.25
 
-function Floor({ position, size, map, color = '#ffffff', roughness = 0.8 }: { position: Vec3; size: [number, number]; map?: ReturnType<typeof woodFloor>; color?: string; roughness?: number }) {
-  return <mesh position={position} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+function Floor({ position, size, map, color = '#ffffff', roughness = 0.8, rotation = [-Math.PI / 2, 0, 0] }: { position: Vec3; size: [number, number]; map?: ReturnType<typeof woodFloor>; color?: string; roughness?: number; rotation?: Vec3 }) {
+  return <mesh position={position} rotation={rotation} receiveShadow>
     <planeGeometry args={size}/>
     <meshStandardMaterial map={map} color={color} roughness={roughness}/>
   </mesh>
@@ -324,28 +324,32 @@ function Outdoors({ night, layout, agents }: { night: boolean; layout: OfficeLay
   return <group>
     {/* Procedural sky and ambient outdoor lighting */}
     <Sky night={night} />
-    <ambientLight color={night ? '#61739b' : '#d8e8ff'} intensity={night ? 0.48 : 0.72} />
-    <hemisphereLight args={[night ? '#7189c2' : '#9ecbff', night ? '#263326' : '#617c42', night ? 0.58 : 0.82]} />
+    <ambientLight color={night ? '#8da2c9' : '#d8e8ff'} intensity={night ? 0.72 : 0.85} />
+    <hemisphereLight args={[night ? '#88a3db' : '#9ecbff', night ? '#344634' : '#617c42', night ? 0.75 : 0.95]} />
     <directionalLight
       position={night ? [80, 100, -150] : [-45, 80, -30]}
       color={night ? '#b8c9ff' : '#fff1cf'}
       intensity={night ? 0.9 : 1.15}
       castShadow
     />
-    {/* One distant atmospheric fog only. A second near fog made the entire vista disappear on mobile. */}
-    <fog attach="fog" args={[night ? '#10182d' : '#b8d7ee', 150, 460]} />
-    {/* Infinite ground plane - 10x larger to avoid visible edges */}
-    <Floor position={[shift / 2, -0.02, -50]} size={[600, 500]} map={lawn} roughness={1}/>
-    {/* Semi-open-world Vista: Layered Mountains & Ocean Horizon */}
-    <LayeredMountains buildingMinX={layout.building.minX} />
-    {/* Ocean in FRONT of office (z positive = towards street) */}
-    <OceanVista night={night} offsetX={0} offsetZ={0} />
+    {/* Atmospheric fog for depth */}
+    <fog attach="fog" args={[night ? '#10182d' : '#b8d7ee', 120, 350]} />
+    {/* Ground plane - restricted to building area only, leaves room for coast */}
+    <Floor position={[shift / 2, -0.02, -40]} size={[200, 90]} map={lawn} roughness={1}/>
+    {/* Mountains behind office - far distance for atmospheric perspective */}
+    <Mountains buildingMinX={layout.building.minX} />
+    {/* Living city: low houses near office, tall skyline far away, all 360° */}
+    <CityBlocks night={night} />
     {/* Horizon-traversing NPCs (distant vehicles, walkers, animals) */}
     <WorldNPCs buildingMinX={layout.building.minX} />
-    {/* Extended sidewalk and road towards horizon */}
-    <Floor position={[shift / 2, -0.005, 7.1]} size={[120 - shift, 5]} map={sidewalk} roughness={0.9}/>
-    {/* Extended road to horizon */}
-    <Floor position={[shift / 2, -0.01, 12.1]} size={[160 - shift, 8]} map={road} roughness={0.95}/>
+    {/* Main office-side sidewalk */}
+    <Floor position={[shift / 2, -0.005, 7.1]} size={[140 - shift, 5]} map={sidewalk} roughness={0.9}/>
+    {/* Main road - extends to the fog in both directions */}
+    <Floor position={[0, -0.01, 13.1]} size={[240, 8]} map={road} roughness={0.95}/>
+    {/* Cross road (north-south), east of the office - continues into the fog */}
+    <Floor position={[24, -0.0105, 0]} size={[8, 240]} map={road} roughness={0.95}/>
+    {/* Paved transition zone between the sidewalk and the road */}
+    <Floor position={[0, -0.008, 22]} size={[240, 12]} map={pavingStones([8, 6])} roughness={0.9}/>
     {/* Path from the entrance to the sidewalk */}
     <Floor position={[5.8, 0, 4.7]} size={[1.8, 1]} map={sidewalk}/>
     {/* Merah Putih by the entrance */}
@@ -371,9 +375,7 @@ function Outdoors({ night, layout, agents }: { night: boolean; layout: OfficeLay
     {/* AC outdoor units behind the building */}
     <AcOutdoorUnit position={[-5.3, 0, layout.building.minZ - 0.45]} rotation={Math.PI}/>
     <AcOutdoorUnit position={[TV[0] - 1.6, 0, layout.building.minZ - 0.45]} rotation={Math.PI}/>
-    <StreetLamp position={[-8, 0, 9.3]} night={night}/>
-    <StreetLamp position={[4, 0, 9.3]} night={night}/>
-    {[[-12.8 + shift, -7.4, 1.3], [13.5, -7.2, 1.2], [-14.8 + shift, 2.6, 1.1], [18.6, 4.8, 1.3], [-10.5 + shift, 7.5, 1], [12, 8, 1.1], [-2, -8.5, 1.2], [6, -8, 1.1]].map(([x, z, size]) => <Tree key={`${x}${z}`} position={[x, 0, z]} size={size}/>)}
+    {[[-12.8 + shift, -7.4, 1.3], [13.5, -7.2, 1.2], [-14.8 + shift, 2.6, 1.1], [18.6, 4.8, 1.3], [-2, -8.5, 1.2], [6, -8, 1.1]].map(([x, z, size]) => <Tree key={`${x}${z}`} position={[x, 0, z]} size={size}/>)}
   </group>
 }
 

@@ -279,7 +279,7 @@ const Controls = forwardRef<ViewHandle, { panMode: boolean; keyTarget: HTMLEleme
     // Moderate zoom adjustment for portrait views so the building stays well-sized
     const zoomMultiplier = isRotated ? 1 : Math.min(1.85, Math.max(1, 1.2 / aspect))
     offset.setLength(offset.length() * zoomMultiplier)
-    const focus = target.clone().set(aspect < 1 ? cameraTarget[0] + 0.5 : cameraTarget[0], cameraTarget[1] + elevation, aspect < 1 ? -0.8 : cameraTarget[2])
+    const focus = target.clone().set(aspect < 1 ? cameraTarget[0] + 0.5 : cameraTarget[0], cameraTarget[1] + elevation, aspect < 1 ? cameraTarget[2] : cameraTarget[2])
     const orbit = controls.current
     // An undamped update applies and clears any momentum left from an earlier drag,
     // so it has to happen before the camera is placed, not after.
@@ -543,6 +543,7 @@ export default function Office3D({ stations, onSelect, onToggleFullscreen, isFul
         dpr={dpr}
         camera={{ position: [-15, 28, 35], fov: 35, near: 0.5, far: 500 }}
         gl={{ antialias: !fastMode, powerPreference: 'high-performance' }}
+        onCreated={(state) => { const w = window as unknown as { __gl?: unknown; __scene?: unknown }; w.__gl = state.gl; w.__scene = state.scene }}
       >
         <Lighting theme={theme} shadowsEnabled={shadowsEnabled}/>
         <Environment night={theme === 'dark'} layout={layout} floor={floor} agents={stations.map(s => ({

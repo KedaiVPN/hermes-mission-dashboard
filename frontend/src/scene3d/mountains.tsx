@@ -7,12 +7,13 @@ import type { Vec3 } from '../office3d-layout.ts'
  * Render a single mountain peak as stacked tiers of voxel blocks.
  * Each tier steps inward as it goes up, creating a natural terraced mountain.
  */
-function MountainPeak({ position, height, tiers, baseSize, colorScheme }: {
+function MountainPeak({ position, height, tiers, baseSize, colorScheme, opacity = 1 }: {
   position: Vec3
   height: number
   tiers: number
   baseSize: [number, number]
   colorScheme: 'forest' | 'stone' | 'snowy'
+  opacity?: number
 }) {
   const [baseX, baseZ] = baseSize
   const tierHeight = height / tiers
@@ -46,6 +47,7 @@ function MountainPeak({ position, height, tiers, baseSize, colorScheme }: {
             color={color}
             roughness={0.95}
             shadow={false}
+            opacity={opacity}
           />
         )
       })}
@@ -70,6 +72,7 @@ export function Mountains({ buildingMinX = -9.5 }: { buildingMinX?: number }) {
           tiers={peak.tiers}
           baseSize={peak.baseSize}
           colorScheme={peak.colorScheme}
+          opacity={peak.opacity}
         />
       ))}
     </group>

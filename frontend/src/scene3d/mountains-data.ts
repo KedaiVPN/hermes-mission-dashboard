@@ -6,21 +6,24 @@ export interface MountainPeak {
   tiers: number
   baseSize: [number, number]
   colorScheme: 'forest' | 'stone' | 'snowy'
+  opacity?: number
 }
 
 /**
  * Generate mountain peak definitions for the landscape.
- * Mountains frame the office: back (north) only, green and natural.
+ * Mountains frame the office: back (north) only, far away for atmospheric perspective.
  */
 export function getMountainPeaks(_buildingMinX: number): MountainPeak[] {
   const peaks: MountainPeak[] = []
 
-  // Four focal mountain peaks behind the office, lush green forest style
+  // Five focal mountain peaks far behind the office (Z -100 to -160), lush green forest style.
+  // Peaks are larger and positioned at atmospheric distance to create sense of expansive valley.
   const backRange = [
-    { x: -25, z: -48, h: 24, tiers: 5, scheme: 'forest' },
-    { x: 0, z: -52, h: 28, tiers: 6, scheme: 'forest' },
-    { x: 20, z: -45, h: 22, tiers: 5, scheme: 'forest' },
-    { x: 35, z: -50, h: 26, tiers: 6, scheme: 'forest' },
+    { x: -50, z: -120, h: 48, tiers: 7, scheme: 'forest', opacity: 0.92 },
+    { x: -10, z: -145, h: 55, tiers: 8, scheme: 'forest', opacity: 0.88 },
+    { x: 25, z: -135, h: 50, tiers: 7, scheme: 'forest', opacity: 0.90 },
+    { x: 60, z: -150, h: 52, tiers: 8, scheme: 'forest', opacity: 0.86 },
+    { x: 90, z: -125, h: 46, tiers: 7, scheme: 'forest', opacity: 0.91 },
   ]
 
   // Compile only back peaks
@@ -30,10 +33,11 @@ export function getMountainPeaks(_buildingMinX: number): MountainPeak[] {
       height: p.h,
       tiers: p.tiers,
       baseSize: [
-        10 + p.h * 0.25,   // narrower base for cleaner silhouette
-        10 + p.h * 0.25,
+        16 + p.h * 0.35,   // larger base for distant prominence
+        14 + p.h * 0.30,
       ],
       colorScheme: p.scheme as 'forest' | 'stone' | 'snowy',
+      opacity: p.opacity,
     })
   }
 

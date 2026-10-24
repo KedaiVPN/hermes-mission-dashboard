@@ -88,6 +88,7 @@ const MIN_DESK_COLUMNS = 3
 /** The stock building (up to six agents) and the scene width the camera is framed for. */
 const BASE_MIN_X = -9.5
 const BASE_SCENE_WIDTH = 28.7
+// Camera back to default: comfortable oblique view of the office.
 const CAMERA_OFFSET_BASE: Vec3 = [-15, 28, 35]
 
 /**
