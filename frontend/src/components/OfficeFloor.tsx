@@ -23,7 +23,6 @@ export function OfficeFloor({
 }: OfficeFloorProps) {
   const [selectedStation, setSelectedStation] = useState<OfficeStation | null>(null);
   const [showLegend, setShowLegend] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Check if device is mobile
   const isMobile = useMemo(() => {
@@ -131,7 +130,7 @@ export function OfficeFloor({
 
   return (
     <div
-      className={`office-stage-3d ${isFullscreen ? 'is-fullscreen' : ''} ${
+      className={`office-stage-3d ${
         isRotated ? 'force-landscape' : ''
       }`}
     >
@@ -146,8 +145,6 @@ export function OfficeFloor({
         <Office3D
           stations={stations}
           onSelect={(station) => setSelectedStation(station)}
-          onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
-          isFullscreen={isFullscreen}
           isRotated={isRotated}
         />
       </Suspense>
@@ -162,7 +159,7 @@ export function OfficeFloor({
               className="rounded-md border border-white/20 bg-black/60 hover:bg-black/80 px-2 py-0.5 text-[11px] font-mono text-zinc-200 backdrop-blur-md transition-colors"
               title="Buka Navigasi Menu"
             >
-              ☰ Menu
+              Menu
             </button>
           )}
 
@@ -173,7 +170,7 @@ export function OfficeFloor({
               className="rounded-md border border-blue-500/40 bg-blue-950/70 hover:bg-blue-900/80 px-2 py-0.5 text-[11px] font-mono text-blue-300 backdrop-blur-md transition-colors font-medium"
               title="Beralih antara mode Landscape Otomatis dan Potret"
             >
-              {forceLandscape ? '🔄 Potret' : '🔄 Landscape'}
+              {forceLandscape ? 'Potret' : 'Landscape'}
             </button>
           )}
 
@@ -184,7 +181,7 @@ export function OfficeFloor({
               className="rounded-md border border-white/20 bg-black/60 hover:bg-black/80 px-2 py-0.5 text-[11px] font-mono text-zinc-300 backdrop-blur-md transition-colors"
               title="Kembali ke Task Board"
             >
-              ✕ Keluar
+              Keluar
             </button>
           )}
         </div>
@@ -209,7 +206,7 @@ export function OfficeFloor({
             className="rounded-md border border-white/20 bg-black/60 hover:bg-black/80 px-1.5 py-0.5 text-[10.5px] font-mono text-zinc-200 backdrop-blur-md transition-colors"
             title="Tampilkan Info Denah Kantor"
           >
-            {showLegend ? '✕ Info' : 'ℹ Info'}
+            {showLegend ? 'Tutup' : 'Info'}
           </button>
         </div>
       </div>

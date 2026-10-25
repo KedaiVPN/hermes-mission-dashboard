@@ -500,7 +500,7 @@ function useFloor(): [Floor, (floor: Floor) => void] {
   }]
 }
 
-export default function Office3D({ stations, onSelect, onToggleFullscreen, isFullscreen, isRotated }: { stations: OfficeStation[]; onSelect: (station: OfficeStation, trigger: HTMLElement | null) => void; onToggleFullscreen?: () => void; isFullscreen?: boolean; isRotated?: boolean }) {
+export default function Office3D({ stations, onSelect, isRotated }: { stations: OfficeStation[]; onSelect: (station: OfficeStation, trigger: HTMLElement | null) => void; isRotated?: boolean }) {
   const anchors = useRef(new Map<string, THREE.Object3D>())
   const labels = useRef(new Map<string, HTMLElement>())
   const view = useRef<ViewHandle>(null)
@@ -512,23 +512,6 @@ export default function Office3D({ stations, onSelect, onToggleFullscreen, isFul
   const isMobile = useMemo(() => isMobileDevice(), [])
   const [fastMode, setFastMode] = useStoredBoolean('mc.officeFast', isMobile)
   const now = useClock(2000)
-
-  const handleToggleFullscreen = () => {
-    if (onToggleFullscreen) {
-      onToggleFullscreen()
-    } else {
-      const container = keyTarget?.closest('.office-stage-3d') || keyTarget || document.documentElement
-      if (!document.fullscreenElement) {
-        if (container.requestFullscreen) {
-          container.requestFullscreen().catch(() => {})
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {})
-        }
-      }
-    }
-  }
 
   // One unlabeled desk per agent (hot desking); the building is sized for the crew.
   const layout = useMemo(() => createLayout(stations.length), [stations.length])
@@ -592,23 +575,25 @@ export default function Office3D({ stations, onSelect, onToggleFullscreen, isFul
     <div className="office-3d-tools">
       <button
         type="button"
-        className={isFullscreen ? 'active' : ''}
-        onClick={handleToggleFullscreen}
-        title={isFullscreen ? 'Keluar dari layar penuh' : 'Layar penuh (Landscape)'}
-      >
-        {isFullscreen ? '✕ Keluar' : '⛶ Fullscreen'}
-      </button>
-      <button
-        type="button"
         className={fastMode ? 'active' : ''}
         onClick={() => setFastMode(!fastMode)}
-        title={fastMode ? 'Mode Cepat (Hemat Baterai aktif) - klik untuk beralih ke Mode HD' : 'Mode HD aktif - klik untuk beralih ke Mode Cepat'}
+        title={fastMode ? 'Mode Low aktif - klik untuk beralih ke Mode HD' : 'Mode HD aktif - klik untuk beralih ke Mode Low'}
       >
-        {fastMode ? '⚡ Cepat' : '✨ HD'}
+        <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        {fastMode ? 'Low' : 'HD'}
       </button>
-      <button type="button" className={sleepMode ? 'active sleep' : ''} aria-pressed={sleepMode} onClick={() => { setSleepMode(!sleepMode); if (!sleepMode && idleSeats.length > 0) setFloor(2) }} title="Send every idle agent to bed on lantai 2">💤 Tidur</button>
-      <button type="button" className={panMode ? 'active' : ''} aria-pressed={panMode} onClick={() => setPanMode((value) => !value)} title="Drag moves the view instead of rotating it">✥ Geser</button>
-      <button type="button" onClick={() => view.current?.reset()} title="Back to the starting view">↺ Reset view</button>
+      <button type="button" className={sleepMode ? 'active sleep' : ''} aria-pressed={sleepMode} onClick={() => { setSleepMode(!sleepMode); if (!sleepMode && idleSeats.length > 0) setFloor(2) }} title="Kirim agent tidur">
+        <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        Tidur
+      </button>
+      <button type="button" className={panMode ? 'active' : ''} aria-pressed={panMode} onClick={() => setPanMode((value) => !value)} title="Geser pandangan kamera">
+        <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+        Geser
+      </button>
+      <button type="button" onClick={() => view.current?.reset()} title="Reset sudut pandang kamera">
+        <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Reset
+      </button>
     </div>
   </div>
 }

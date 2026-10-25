@@ -455,6 +455,15 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .office-3d-floors button small {
     display: none;
   }
+  /* Hide the floor-count badges on phones (the "0 2" clutter); keep the short label */
+  .office-3d-floors button small {
+    display: none;
+  }
+  .office-3d-floors button {
+    grid-template-columns: 22px auto;
+    min-width: 0;
+    padding: 3px 7px;
+  }
   .office-hud-bar {
     top: 8px;
     right: 8px;

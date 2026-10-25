@@ -102,12 +102,12 @@ export function App() {
           <HamburgerButton onClick={() => setSidebarOpen((open) => !open)} isOpen={sidebarOpen} />
           <span className="app-mobile-title">
             {currentView === 'office'
-              ? 'Office Floor'
+              ? ''
               : currentView === 'tasks'
-              ? 'Task Board'
-              : currentView === 'new-task'
-              ? 'New Task'
-              : 'Agent Profiles'}
+                ? 'Task Board'
+                : currentView === 'new-task'
+                  ? 'New Task'
+                  : 'Agent Profiles'}
           </span>
           <span className={`connection-dot ${sseConnected ? 'live' : ''}`} aria-label={sseConnected ? 'Live connection' : 'Reconnecting'} />
         </div>
