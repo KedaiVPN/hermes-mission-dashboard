@@ -438,6 +438,18 @@ function useThemeName(): 'dark' | 'light' {
   return theme
 }
 
+/** HD-only renderer tuning. ACES improves color separation without a costly post-processing pass. */
+function RendererQuality({ fast }: { fast: boolean }) {
+  const { gl } = useThree()
+  useEffect(() => {
+    gl.toneMapping = fast ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping
+    gl.toneMappingExposure = fast ? 1 : 1.08
+    gl.outputColorSpace = THREE.SRGBColorSpace
+    gl.shadowMap.type = fast ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap
+  }, [gl, fast])
+  return null
+}
+
 /** Day in the light theme; evening in the dark theme, when the lamps in the scene switch on. */
 function Lighting({ theme, shadowsEnabled }: { theme: 'dark' | 'light'; shadowsEnabled: boolean }) {
   const day = theme === 'light'
@@ -449,8 +461,9 @@ function Lighting({ theme, shadowsEnabled }: { theme: 'dark' | 'light'; shadowsE
       intensity={day ? 2.4 : 0.75}
       color={day ? '#fff1d6' : '#ff9a5a'}
       castShadow={shadowsEnabled}
-      shadow-mapSize={shadowsEnabled ? [1024, 1024] : [256, 256]}
+      shadow-mapSize={shadowsEnabled ? [2048, 2048] : [256, 256]}
       shadow-bias={-0.0004}
+      shadow-normalBias={0.02}
       shadow-camera-left={-16}
       shadow-camera-right={16}
       shadow-camera-top={16}
@@ -539,12 +552,13 @@ export default function Office3D({ stations, onSelect, onToggleFullscreen, isFul
   }}>
     <QualityContext.Provider value={{ fast: fastMode, shadows: shadowsEnabled }}>
       <Canvas
-        shadows={shadowsEnabled}
+        shadows={shadowsEnabled ? { type: THREE.PCFSoftShadowMap } : false}
         dpr={dpr}
         camera={{ position: [-15, 28, 35], fov: 35, near: 0.5, far: 500 }}
         gl={{ antialias: !fastMode, powerPreference: 'high-performance' }}
         onCreated={(state) => { const w = window as unknown as { __gl?: unknown; __scene?: unknown }; w.__gl = state.gl; w.__scene = state.scene }}
       >
+        <RendererQuality fast={fastMode}/>
         <Lighting theme={theme} shadowsEnabled={shadowsEnabled}/>
         <Environment night={theme === 'dark'} layout={layout} floor={floor} agents={stations.map(s => ({
           id: s.id,

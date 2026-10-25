@@ -15,7 +15,7 @@ function canvasTexture(key: string, width: number, height: number, draw: (ctx: C
   if (ctx) draw(ctx)
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
-  texture.anisotropy = 4
+  texture.anisotropy = 8
   if (repeat) {
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
